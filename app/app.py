@@ -5,6 +5,9 @@ from typing import List, Dict
 
 from google_map_analyzer import PlaceType, run_search_api
 
+st.set_page_config(layout="wide")
+
+
 link_css = """
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"> 
 """
@@ -15,7 +18,7 @@ st.title("SNS検索")
 
 keyword = st.text_input("キーワードを入力してください", "スイーツ")
 location = st.text_input("場所を入力してください", value="東京駅")
-radius = st.slider("検索半径を選択してください(m)", min_value=1, max_value=10000, value=1000)
+radius = st.slider("検索半径を選択してください(m)", min_value=3, max_value=10000, value=1000)
 shop_type = st.selectbox(
     "タイプを選択してください", list(PlaceType), index=list(PlaceType).index(PlaceType.CAFE)
 )
