@@ -16,11 +16,11 @@ st.write(link_css, unsafe_allow_html=True)
 
 st.title("SNS検索")
 
-keyword = st.text_input("キーワードを入力してください", "スイーツ")
-location = st.text_input("場所を入力してください", value="東京駅")
+keyword = st.text_input("キーワードを入力してください", "ラーメン")
+location = st.text_input("場所を入力してください", value="仙台駅")
 radius = st.slider("検索半径を選択してください(m)", min_value=1, max_value=10000, value=1000)
 shop_type = st.selectbox(
-    "タイプを選択してください", list(PlaceType), index=list(PlaceType).index(PlaceType.CAFE)
+    "タイプを選択してください", list(PlaceType), index=list(PlaceType).index(PlaceType.RESTAURANT)
 )
 
 # Check if session state is already initialized
@@ -32,6 +32,7 @@ search_col, download_col = st.columns([1, 1])  # set up the columns
 
 if search_col.button("検索"):
     results = run_search_api(keyword, location, radius, limit=5, _type=shop_type)
+    results = [result for result in results if result["sns"]]
 
     # Prepare results for DataFrame
     formatted_results = []

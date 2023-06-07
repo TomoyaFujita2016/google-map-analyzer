@@ -146,6 +146,8 @@ def get_place_details(place_id):
 def extract_info_from_results(results):
     new_results = []
     for result in results:
+        if len(result["sns"]) == 0:
+            continue
         new_results.append(
             {
                 "name": result["name"],
