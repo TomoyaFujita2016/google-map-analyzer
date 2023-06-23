@@ -22,6 +22,7 @@ radius = st.slider("検索半径を選択してください(m)", min_value=1, ma
 shop_type = st.selectbox(
     "タイプを選択してください", list(PlaceType), index=list(PlaceType).index(PlaceType.RESTAURANT)
 )
+sns_only = st.checkbox("SNSが存在する店舗のみ")
 
 # Check if session state is already initialized
 if "results" not in st.session_state:
@@ -32,7 +33,7 @@ search_col, download_col = st.columns([1, 1])  # set up the columns
 
 if search_col.button("検索"):
     results = run_search_api(keyword, location, radius, limit=5, _type=shop_type)
-    results = [result for result in results if result["sns"]]
+    results = [result for result in results if result["sns"] or not sns_only]
 
     # Prepare results for DataFrame
     formatted_results = []
