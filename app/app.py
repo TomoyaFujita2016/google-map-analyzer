@@ -1,11 +1,40 @@
-import streamlit as st
-import pandas as pd
+import datetime
+import os
 from enum import Enum
-from typing import List, Dict
+from typing import Dict, List
 
+import pandas as pd
+import streamlit as st
 from google_map_analyzer import PlaceType, run_search_api
 
 st.set_page_config(layout="wide")
+
+
+# --- 1日の検索回数制限
+DATA_FILE = "button_data.txt"
+SEARCH_LIMIT = 5
+
+
+def read_data():
+    if not os.path.exists(DATA_FILE):
+        return 0, None
+
+    with open(DATA_FILE, "r") as f:
+        lines = f.readlines()
+        count = int(lines[0].strip())
+        last_date = datetime.datetime.strptime(lines[1].strip(), "%Y-%m-%d").date()
+        return count, last_date
+
+
+def write_data(count, date):
+    with open(DATA_FILE, "w") as f:
+        f.write(str(count) + "\n")
+        f.write(date.strftime("%Y-%m-%d"))
+
+
+count, last_date = read_data()
+today = datetime.date.today()
+# ---
 
 
 link_css = """
@@ -31,7 +60,10 @@ if "results" not in st.session_state:
 search_col, download_col = st.columns([1, 1])  # set up the columns
 
 
-if search_col.button("検索"):
+if (
+    search_col.button("検索", disabled=not (count < SEARCH_LIMIT))
+    and count < SEARCH_LIMIT
+):
     results = run_search_api(keyword, location, radius, limit=5, _type=shop_type)
     results = [result for result in results if result["sns"] or not sns_only]
 
@@ -51,6 +83,17 @@ if search_col.button("検索"):
 
     # Update session state
     st.session_state["results"] = pd.DataFrame(formatted_results)
+
+    # 検索制限 +1
+    count += 1
+    write_data(count, today)
+
+if count >= SEARCH_LIMIT:
+    st.warning("本日のボタンの押下回数の上限に達しました。")
+else:
+    remaining = SEARCH_LIMIT - count
+    st.info(f"本日の残りの押下回数: {remaining} / {SEARCH_LIMIT}")
+
 
 # Display results
 for index, result in st.session_state["results"].iterrows():
