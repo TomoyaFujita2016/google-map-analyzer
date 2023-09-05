@@ -1,12 +1,12 @@
-import json
 import concurrent.futures
-from tqdm import tqdm
+import json
 import time
 from typing import List, Optional
-from .crawl import find_social_links
 
 import requests
+from tqdm import tqdm
 
+from .crawl import find_social_links
 from .logger import log
 from .settings import API_KEY
 
@@ -47,9 +47,12 @@ def get_nearby_places(
         "keyword": keyword,
         "radius": radius,
         "language": "ja",
-        "type": _type,  # types: https://developers.google.com/maps/documentation/places/web-service/supported_types
         "key": API_KEY,
     }
+    if _type != "指定なし":
+        params["type"] = _type
+    log.debug(params)
+
     results = []
     for i in range(limit):
         log.debug(f"[*] page={i}")
@@ -196,6 +199,7 @@ def run_search_api(keyword: str, place: str, radius=800, limit=3, _type="food") 
 
 if __name__ == "__main__":
     from pprint import pprint
+
     from place_type import PlaceType
 
     results = run_search_api(keyword="カフェ", place="道玄坂", limit=1, _type=PlaceType.CAFE)

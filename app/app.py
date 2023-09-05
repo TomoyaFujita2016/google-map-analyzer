@@ -12,7 +12,7 @@ st.set_page_config(layout="wide")
 
 # --- 1日の検索回数制限
 DATA_FILE = "button_data.txt"
-SEARCH_LIMIT = 5
+SEARCH_LIMIT = 15
 
 
 def read_data():
@@ -34,6 +34,9 @@ def write_data(count, date):
 
 count, last_date = read_data()
 today = datetime.date.today()
+
+if last_date is None or last_date != today:
+    count = 0
 # ---
 
 
@@ -48,8 +51,13 @@ st.title("SNS検索")
 keyword = st.text_input("キーワードを入力してください", "ラーメン")
 location = st.text_input("場所を入力してください", value="仙台駅")
 radius = st.slider("検索半径を選択してください(m)", min_value=1, max_value=10000, value=1000)
+
+type_list = list(PlaceType)
+type_list.append("指定なし")
 shop_type = st.selectbox(
-    "タイプを選択してください", list(PlaceType), index=list(PlaceType).index(PlaceType.RESTAURANT)
+    "タイプを選択してください",
+    type_list,
+    index=type_list.index("指定なし"),
 )
 sns_only = st.checkbox("SNSが存在する店舗のみ")
 
